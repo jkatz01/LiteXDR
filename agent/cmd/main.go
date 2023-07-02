@@ -2,29 +2,46 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
+type ProcessInfo struct {
+	name string
+	path string
+}
 type HashRequest struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key string `json:"key"`
 }
 
 type HashResponse struct {
 	RetMsg bool `json:"ret_msg"`
 }
 
+func HashProcessInfo(sourceProcess ProcessInfo) string {
+	//Function to convert a ProcessInfo struct into a single hash and returns it as a string
+	processString := fmt.Sprintf("%s%s", sourceProcess.name, sourceProcess.path) //string concatenation
+	processHash := sha1.New()
+	processHash.Write([]byte(processString))
+	hashedString := string(processHash.Sum(nil)) //gives the hash in a (byte slice converted to) string format
+	return hashedString
+}
+
 func main() {
 
 	println("Agent started.")
 
+	testProcess := ProcessInfo{
+		name: "Cool Process",
+		path: "D/whatever/somefolder",
+	}
+
 	// Create a JSON payload
 	requestBody := HashRequest{
-		Key:   "Key1",
-		Value: "Val1 (Blablong1)",
+		Key: HashProcessInfo(testProcess),
 	}
 
 	// Convert the payload to JSON
