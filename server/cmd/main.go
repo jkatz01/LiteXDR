@@ -21,6 +21,7 @@ func checkHashHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Store data in the map
 		processHashMap[processHash] += 1 //add hash to the map and increase the count if it already exists
+		log.Printf("Added hash to map: %s", processHash)
 
 		// Send a success response
 		w.WriteHeader(http.StatusOK)
