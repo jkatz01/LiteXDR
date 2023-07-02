@@ -7,20 +7,20 @@ import (
 	"net/http"
 )
 
+var processHashMap map[string]int
+
 func checkHashHandler(w http.ResponseWriter, r *http.Request) {
+	var processHash string
 	if r.Method == "POST" {
 		// Parse JSON request body
-		var hashData map[string]string
-		err := json.NewDecoder(r.Body).Decode(&hashData)
+		err := json.NewDecoder(r.Body).Decode(&processHash)
 		if err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 
 		// Store data in the map
-		for key, value := range hashData {
-			log.Println(key, value)
-		}
+		processHashMap[processHash] += 1 //add hash to the map and increase the count if it already exists
 
 		// Send a success response
 		w.WriteHeader(http.StatusOK)
@@ -29,6 +29,8 @@ func checkHashHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Create hash map
+	processHashMap = make(map[string]int)
 
 	// Define the server routes
 	http.HandleFunc("/check_hash", checkHashHandler)
