@@ -9,8 +9,12 @@ import (
 
 var processHashMap map[string]int
 
+type ProcessHash struct {
+	Key string `json:"key"`
+}
+
 func checkHashHandler(w http.ResponseWriter, r *http.Request) {
-	var processHash string
+	var processHash ProcessHash
 	if r.Method == "POST" {
 		// Parse JSON request body
 		err := json.NewDecoder(r.Body).Decode(&processHash)
@@ -20,8 +24,9 @@ func checkHashHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Store data in the map
-		processHashMap[processHash] += 1 //add hash to the map and increase the count if it already exists
-		log.Printf("Added hash to map: %s", processHash)
+		processHashMap[processHash.Key] += 1 //add hash to the map and increase the count if it already exists
+		log.Print(processHashMap)
+		log.Printf("Added hash to map: %s", processHash.Key)
 
 		// Send a success response
 		w.WriteHeader(http.StatusOK)
