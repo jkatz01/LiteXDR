@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"crypto/sha1"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -34,22 +33,24 @@ func main() {
 
 	println("Agent started.")
 
-	testProcess := ProcessInfo{
-		name: "Cool Process",
-		path: "D/whatever/somefolder",
-	}
-
+	/*	testProcess := ProcessInfo{
+			name: "Cool Process",
+			path: "D/whatever/somefolder",
+		}
+	*/
 	// Create a JSON payload
-	requestBody := HashRequest{
-		Key: HashProcessInfo(testProcess),
-	}
-
+	/*	requestBody := HashRequest{
+			Key: HashProcessInfo(testProcess),
+		}
+	*/
+	jsonData := []byte("just a strinbg")
 	// Convert the payload to JSON
-	jsonData, err := json.Marshal(requestBody)
-	if err != nil {
-		fmt.Println("Failed to marshal JSON:", err)
-		return
-	}
+	/*	jsonData, err := json.Marshal(requestBody)
+		if err != nil {
+			fmt.Println("Failed to marshal JSON:", err)
+			return
+		}
+	*/
 
 	// Send the POST request
 	url := "http://localhost:1037/check_hash" // Replace with the actual URL
@@ -68,13 +69,13 @@ func main() {
 	}
 
 	// Parse the JSON response
-	var response HashResponse
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		fmt.Println("Failed to unmarshal JSON response:", err)
-		return
-	}
-
+	/*	var response HashResponse
+		err = json.Unmarshal(body, &response)
+		if err != nil {
+			fmt.Println("Failed to unmarshal JSON response:", err)
+			return
+		}
+	*/
 	// Print the response
-	fmt.Println("ret_msg:", response.RetMsg)
+	fmt.Println("ret_msg:" /*response.RetMsg*/, body)
 }
