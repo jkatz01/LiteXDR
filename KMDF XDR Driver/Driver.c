@@ -5,7 +5,6 @@ DRIVER_UNLOAD KmdfDriverUnload;
 EVT_WDF_DRIVER_DEVICE_ADD KmdfHelloWorldEvtDeviceAdd;
 
 
-/*
 // Callback function for module load notification
 VOID ModuleLoadCallback(
     _In_opt_ PUNICODE_STRING FullImageName,
@@ -20,12 +19,10 @@ VOID ModuleLoadCallback(
     {
         // Access and process the module information
         // Extract the required information and perform any desired actions
-        //KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL,  FullImageName ));
-       DbgPrint("KmdfHelloWorld Process name is %S\n", FullImageName);
+        KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Process name is %S\n", FullImageName->Buffer));
 
     }
 }
-*/
 
 NTSTATUS
 DriverEntry(
@@ -46,12 +43,12 @@ DriverEntry(
 
     // Register module load notification callback
 
-   /* status = PsSetLoadImageNotifyRoutineEx(ModuleLoadCallback, PS_IMAGE_NOTIFY_CONFLICTING_ARCHITECTURE);
+    status = PsSetLoadImageNotifyRoutineEx(ModuleLoadCallback, PS_IMAGE_NOTIFY_CONFLICTING_ARCHITECTURE);
     if (!NT_SUCCESS(status))
     {
         // Handle error
         return status;
-    }*/
+    }
 
 
     // Initialize the driver configuration object to register the
@@ -109,10 +106,10 @@ VOID KmdfDriverUnload(_In_ PDRIVER_OBJECT DriverObject)
 
     // Unregister module load notification callback
 
-   // PsRemoveLoadImageNotifyRoutine(ModuleLoadCallback);
+    PsRemoveLoadImageNotifyRoutine(ModuleLoadCallback);
 
 
-    DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: BYE BYE  \n");
+    //DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: BYE BYE  \n");
     KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: BYE BYE\n"));
 
 

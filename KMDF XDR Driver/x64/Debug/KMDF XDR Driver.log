@@ -1,13 +1,13 @@
 ﻿  Building 'KMDF XDR Driver' with toolset 'WindowsKernelModeDriver10.0' and the 'Universal' target platform.
   Stamping x64\Debug\KMDFXDRDriver.inf
-  Stamping [Version] section with DriverVer=07/04/2023,14.51.45.875
+  Stamping [Version] section with DriverVer=07/04/2023,15.28.22.313
   Driver.c
   KMDF XDR Driver.vcxproj -> D:\Documents\LiteXDR\KMDF XDR Driver\x64\Debug\KMDFXDRDriver.sys
   Done Adding Additional Store
   Successfully signed: D:\Documents\LiteXDR\KMDF XDR Driver\x64\Debug\KMDFXDRDriver.sys
   
   Driver is 'Universal'.
-  ........................
+  .........................
   Signability test complete.
   
   Errors:
