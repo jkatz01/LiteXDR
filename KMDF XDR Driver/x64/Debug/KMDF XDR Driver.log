@@ -1,6 +1,6 @@
 ﻿  Building 'KMDF XDR Driver' with toolset 'WindowsKernelModeDriver10.0' and the 'Universal' target platform.
   Stamping x64\Debug\KMDFXDRDriver.inf
-  Stamping [Version] section with DriverVer=07/05/2023,19.15.40.960
+  Stamping [Version] section with DriverVer=07/05/2023,23.43.47.827
   Driver.cpp
   KMDF XDR Driver.vcxproj -> D:\Documents\LiteXDR\KMDF XDR Driver\x64\Debug\KMDFXDRDriver.sys
   Done Adding Additional Store
