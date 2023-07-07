@@ -8,7 +8,7 @@ Class=System ; TODO: specify appropriate Class
 ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
 Provider=%ManufacturerName%
 CatalogFile=KMDFXDRDriver.cat
-DriverVer = 07/05/2023,19.15.40.960
+DriverVer = 07/05/2023,23.55.27.203
 PnpLockdown=1
 
 [DestinationDirs]
