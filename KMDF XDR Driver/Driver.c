@@ -4,11 +4,15 @@
 
 DRIVER_UNLOAD KmdfDriverUnload;
 EVT_WDF_DRIVER_DEVICE_ADD KmdfHelloWorldEvtDeviceAdd;
-PRKMUTEX PrMutex; // TODO: put this in device context
-SINGLE_LIST_ENTRY ListHead;
 
 #define MAX_PR_NAME_SIZE 128
 
+typedef struct {
+    PRKMUTEX ProcMutex;
+    //SINGLE_LIST_ENTRY ListHead;
+} MY_DRIVER_DATA, *PMY_DRIVER_DATA;
+
+/*
 typedef struct {
     SINGLE_LIST_ENTRY SingleListEntry;
     CHAR ProcessName[MAX_PR_NAME_SIZE];
@@ -26,13 +30,10 @@ P_PROC_INFO_ENTRY PopProcessEntry(PSINGLE_LIST_ENTRY _ListHead) {
     SingleListEntry = PopEntryList(_ListHead);
     return CONTAINING_RECORD(SingleListEntry, PROC_INFO_ENTRY, SingleListEntry);
 }
+*/
 
 // Callback function for module load notification
-VOID ModuleLoadCallback(
-    _In_opt_ PUNICODE_STRING FullImageName,
-    _In_ HANDLE ProcessId,
-    _In_ PIMAGE_INFO ImageInfo
-)
+VOID ModuleLoadCallback(_In_opt_ PUNICODE_STRING FullImageName, _In_ HANDLE ProcessId, _In_ PIMAGE_INFO ImageInfo)
 {
     UNREFERENCED_PARAMETER(ProcessId);
 
@@ -43,6 +44,8 @@ VOID ModuleLoadCallback(
         KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Process name is %S  Size: %zu\n", FullImageName->Buffer, ImageInfo->ImageSize));
 
         //Create node to add in linked list
+        //TODO: change fullimagename->buffer to image_info->base_address
+        /*
         P_PROC_INFO_ENTRY ListNode = (P_PROC_INFO_ENTRY)ExAllocatePool2(POOL_FLAG_PAGED, sizeof(PROC_INFO_ENTRY), 1);
         //RtlCopyMemory(ListNode->ProcessName, FullImageName->Buffer, (size_t)FullImageName->Length);
         ListNode->ProcessName[0] = 'T';
@@ -53,80 +56,80 @@ VOID ModuleLoadCallback(
         ListNode->ImageSize = ImageInfo->ImageSize;
 
         PushProcessEntry(&ListHead, ListNode);
+        */
     }
 }
 
-VOID PopAllTemp() {
-    P_PROC_INFO_ENTRY entry;
-    while (true) {
-        if (ListHead.Next == NULL) {
-            return;
-        }
-        entry = PopProcessEntry(&ListHead);
-        ExFreePool2(entry, 1, NULL, 0); 
-    }
-}
 
-extern "C" {
-    DRIVER_INITIALIZE DriverEntry;
+//VOID PopAllTemp() {
+//    P_PROC_INFO_ENTRY entry;
+//    while (true) {
+//        if (ListHead.Next == NULL) {
+//            return;
+//        }
+//        entry = PopProcessEntry(&ListHead);
+//        ExFreePool2(entry, 1, NULL, 0); 
+//    }
+//}
+DRIVER_INITIALIZE DriverEntry;
 
-    _Use_decl_annotations_
-        NTSTATUS DriverEntry(
-            _In_ PDRIVER_OBJECT     DriverObject,
-            _In_ PUNICODE_STRING    RegistryPath
-        )
+_Use_decl_annotations_ NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath)
+{
+    // NTSTATUS variable to record success or failure
+    NTSTATUS status = STATUS_SUCCESS;
+
+    // Allocate the driver configuration object
+    WDF_DRIVER_CONFIG config;
+
+    // Create custom driver data
+    PMY_DRIVER_DATA DriverData;
+
+    DriverData = (PMY_DRIVER_DATA)ExAllocatePool2(POOL_FLAG_PAGED, sizeof(MY_DRIVER_DATA), 'MyDt');
+
+    if (DriverData == NULL)
     {
-        // NTSTATUS variable to record success or failure
-        NTSTATUS status = STATUS_SUCCESS;
-
-        // Allocate the driver configuration object
-        WDF_DRIVER_CONFIG config;
-
-        // Initialize mutex
-        KeInitializeMutex(PrMutex, PASSIVE_LEVEL);
-
-        // Initialize linked list
-        ListHead.Next = NULL;
-
-        // Print "Hello World" for DriverEntry
-        DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: DriverEntry    7777  \n");
-
-
-
-        // Register module load notification callback
-
-        status = PsSetLoadImageNotifyRoutineEx(ModuleLoadCallback, PS_IMAGE_NOTIFY_CONFLICTING_ARCHITECTURE);
-        if (!NT_SUCCESS(status))
-        {
-            // Handle error
-            return status;
-        }
-
-
-        // Initialize the driver configuration object to register the
-        // entry point for the EvtDeviceAdd callback, KmdfHelloWorldEvtDeviceAdd
-        WDF_DRIVER_CONFIG_INIT(&config,
-            KmdfHelloWorldEvtDeviceAdd
-        );
-
-        // Finally, create the driver object
-        status = WdfDriverCreate(DriverObject,
-            RegistryPath,
-            WDF_NO_OBJECT_ATTRIBUTES,
-            &config,
-            WDF_NO_HANDLE
-        );
-
-        DriverObject->DriverUnload = KmdfDriverUnload;
-        return status;
-
+        return STATUS_INSUFFICIENT_RESOURCES;
     }
+
+    // Initialize mutex
+    KeInitializeMutex(DriverData->ProcMutex, PASSIVE_LEVEL);
+
+    //// Initialize linked list
+    //ListHead.Next = NULL;
+
+    // Print "Hello World" for DriverEntry
+    DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: DriverEntry    7777  \n");
+
+    // Register module load notification callback
+
+    status = PsSetLoadImageNotifyRoutineEx(ModuleLoadCallback, PS_IMAGE_NOTIFY_CONFLICTING_ARCHITECTURE);
+    if (!NT_SUCCESS(status))
+    {
+        // Handle error
+        return status;
+    }
+
+
+    // Initialize the driver configuration object to register the
+    // entry point for the EvtDeviceAdd callback, KmdfHelloWorldEvtDeviceAdd
+    WDF_DRIVER_CONFIG_INIT(&config,
+        KmdfHelloWorldEvtDeviceAdd
+    );
+
+    // Finally, create the driver object
+    status = WdfDriverCreate(DriverObject,
+        RegistryPath,
+        WDF_NO_OBJECT_ATTRIBUTES,
+        &config,
+        WDF_NO_HANDLE
+    );
+
+    DriverObject->DriverUnload = KmdfDriverUnload;
+    return status;
+
 }
 
-NTSTATUS KmdfHelloWorldEvtDeviceAdd(
-    _In_    WDFDRIVER       Driver,
-    _Inout_ PWDFDEVICE_INIT DeviceInit
-)
+NTSTATUS KmdfHelloWorldEvtDeviceAdd(_In_ WDFDRIVER Driver, _Inout_ PWDFDEVICE_INIT DeviceInit)
 {
     // We're not using the driver object,
     // so we need to mark it as unreferenced
@@ -163,7 +166,7 @@ VOID KmdfDriverUnload(_In_ PDRIVER_OBJECT DriverObject)
     // mutex release 
     KeWaitForSingleObject(PrMutex, Executive, KernelMode, FALSE, 0);
     KeReleaseMutex(PrMutex, FALSE);
-    PopAllTemp();
+    //PopAllTemp();
 
     //DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: BYE BYE  \n");
     KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: BYE BYE\n"));
