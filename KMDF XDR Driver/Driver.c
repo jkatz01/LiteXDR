@@ -8,6 +8,17 @@
 //#pragma alloc_text (PAGE, ToasterEvtIoDeviceControl)
 #endif
 
+//// Callback function for module load notification
+VOID ModuleLoadCallback(_In_opt_ PUNICODE_STRING FullImageName, _In_ HANDLE ProcessId, _In_ PIMAGE_INFO ImageInfo)
+{
+    UNREFERENCED_PARAMETER(ProcessId);
+
+    if (FullImageName != NULL)
+    {
+        DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Process name is %S  Size: %zu\n", FullImageName->Buffer, ImageInfo->ImageSize);
+        //TODO: change fullimagename->buffer to image_info->base_address
+    }
+}
 
 NTSTATUS
 DriverEntry(
@@ -21,15 +32,16 @@ DriverEntry(
     //KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "XdrDriverEntry\n"));
     DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "XdrDriverEntry\n");
 
-    //
-    // Initialize driver config to control the attributes that
-    // are global to the driver. Note that framework by default
-    // provides a driver unload routine. If DriverEntry creates any resources
-    // that require clean-up in driver unload,
-    // you can manually override the default by supplying a pointer to the EvtDriverUnload
-    // callback in the config structure. In general xxx_CONFIG_INIT macros are provided to
-    // initialize most commonly used members.
-    //
+
+
+    // Register module load notification callback
+
+    status = PsSetLoadImageNotifyRoutineEx(ModuleLoadCallback, PS_IMAGE_NOTIFY_CONFLICTING_ARCHITECTURE);
+    if (!NT_SUCCESS(status))
+    {
+        // Handle error
+        return status;
+    }
 
     WDF_DRIVER_CONFIG_INIT(
         &config,
@@ -112,7 +124,7 @@ VOID XdrEvtDriverUnload(_In_ PDRIVER_OBJECT DriverObject)
     //DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "TheThing Unload: %d\n", fdoData->TheThing);
 
     // Unregister module load notification callback
-    //PsRemoveLoadImageNotifyRoutine(ModuleLoadCallback);
+    PsRemoveLoadImageNotifyRoutine(ModuleLoadCallback);
 
     DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "XdrEvtExit\n");
     //KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "KmdfHelloWorld: BYE BYE\n"));
