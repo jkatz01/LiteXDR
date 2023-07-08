@@ -1,8 +1,7 @@
-﻿C:\Program Files (x86)\Windows Kits\10\build\10.0.22621.0\WindowsDriver.common.targets(1691,5): warning MSB3231: Unable to remove directory "x64\Debug\KMDF XDR Driver\". The process cannot access the file 'D:\Documents\LiteXDR\KMDF XDR Driver\x64\Debug\KMDF XDR Driver\' because it is being used by another process.
-  Building 'KMDF XDR Driver' with toolset 'WindowsKernelModeDriver10.0' and the 'Universal' target platform.
+﻿  Building 'KMDF XDR Driver' with toolset 'WindowsKernelModeDriver10.0' and the 'Universal' target platform.
   Stamping x64\Debug\KMDFXDRDriver.inf
-  Stamping [Version] section with DriverVer=07/05/2023,23.55.27.203
-  Driver.cpp
+  Stamping [Version] section with DriverVer=07/07/2023,23.7.0.660
+  Driver.c
   KMDF XDR Driver.vcxproj -> D:\Documents\LiteXDR\KMDF XDR Driver\x64\Debug\KMDFXDRDriver.sys
   Done Adding Additional Store
   Successfully signed: D:\Documents\LiteXDR\KMDF XDR Driver\x64\Debug\KMDFXDRDriver.sys
