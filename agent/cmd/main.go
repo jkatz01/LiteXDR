@@ -23,6 +23,8 @@ func HashProcessInfo(sourceProcess ProcessInfo) string {
 	return hashedString
 }
 
+// Add local cache???
+
 func main() {
 
 	testProcess := ProcessInfo{
