@@ -10,9 +10,9 @@
 #include "wmilib.h"
 #include <initguid.h>
 
-//
+
+
 // The device extension for the device object
-//
 typedef struct _FDO_DATA
 {
     int TheThing;
