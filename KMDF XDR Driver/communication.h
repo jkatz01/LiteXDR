@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ntddk.h>
+#include <ntifs.h>
 
 // communication
-#define IO_GET_HELLOWORLD CTL_CODE(FILE_DEVICE_UNKNOWN, 0x2024, METHOD_OUT_DIRECT, FILE_SPECIAL_ACCESS)
+#define IO_GET_HELLOWORLD CTL_CODE(FILE_DEVICE_UNKNOWN, 0x999, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 // Maybe need to use direct I/O or METHOD_OUT_DIRECT instead of buffered?
 
 NTSTATUS CreateCall(PDEVICE_OBJECT DeviceObject, PIRP Irp);

@@ -24,7 +24,7 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Driver.c">
+    <ClCompile Include="driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="events.c">

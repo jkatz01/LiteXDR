@@ -1,5 +1,5 @@
 #pragma once
-#include <ntddk.h>
+#include <ntdef.h>
 
 ULONG exampleNumber;
 PDEVICE_OBJECT pDeviceObject;

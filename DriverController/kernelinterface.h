@@ -15,7 +15,7 @@ public:
 			return 0;
 		}
 
-		ULONG exampleNumber; //The buffer to read
+		ULONG exampleNumber = 0; //The buffer to read
 		DWORD Bytes;
 
 		if (DeviceIoControl(hDriver, IO_GET_HELLOWORLD, &exampleNumber, sizeof(exampleNumber), &exampleNumber, sizeof(exampleNumber), &Bytes, NULL)) {
