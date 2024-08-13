@@ -7,7 +7,7 @@ VOID ModuleLoadCallback(_In_opt_ PUNICODE_STRING FullImageName, _In_ HANDLE Proc
 
     if (FullImageName != NULL)
     {
-        DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Process name is %S  Size: %zu\n", FullImageName->Buffer, ImageInfo->ImageSize);
+        DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Process name is %S  Size: %zu UnicodeStringMaxLength: %d\n", FullImageName->Buffer, ImageInfo->ImageSize, FullImageName->MaximumLength);
         //TODO: change fullimagename->buffer to image_info->base_address
     }
 }
