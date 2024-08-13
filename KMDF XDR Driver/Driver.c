@@ -32,8 +32,9 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT  DriverObject, PUNICODE_STRING RegistryPath
 
     DriverObject->Flags |= DO_DIRECT_IO;
     DriverObject->Flags &= ~DO_DEVICE_INITIALIZING;
-
-    SIZE_T ProcBufferLength = 100 * sizeof(PPROCESS_DATA);
+    ProcBufferAmount = 100;
+    ProcBufferOffset = 0;
+    ProcBufferLength = ProcBufferAmount * sizeof(PROCESS_DATA);
     ProcBuffer = (PPROCESS_DATA) ExAllocatePool2(POOL_FLAG_NON_PAGED, ProcBufferLength, MyTag);
     if (ProcBuffer == NULL) {
         DebugMessage("Failed to allocate memory for ProcBuffer\n");

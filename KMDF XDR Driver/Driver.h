@@ -2,7 +2,7 @@
 
 #include <ntifs.h>
 
-#define DebugMessage(x, ...) DbgPrintEx(0, 0, x, __VA_ARGS__)
+#include "helper_funcs.h"
 
 NTSTATUS DriverEntry(PDRIVER_OBJECT  DriverObject, PUNICODE_STRING RegistryPath);
 

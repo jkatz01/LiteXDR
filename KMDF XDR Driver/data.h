@@ -13,3 +13,6 @@ typedef struct ProcData {
 } PROCESS_DATA, *PPROCESS_DATA;
 
 PPROCESS_DATA ProcBuffer;
+SIZE_T ProcBufferAmount; // Amount of processes in buffer
+SIZE_T ProcBufferLength;		// size of buffer in bytes
+SIZE_T ProcBufferOffset; // Current offset
