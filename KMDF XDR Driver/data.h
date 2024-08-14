@@ -7,12 +7,13 @@ ULONG exampleNumber;
 PDEVICE_OBJECT pDeviceObject;
 UNICODE_STRING dev, dos;
 
-typedef struct ProcData {
+typedef struct ProcHeader {
 	SIZE_T image_size;
-	UNICODE_STRING process_name; 
-} PROCESS_DATA, *PPROCESS_DATA;
+	SIZE_T string_size; 
+} PROCESS_HEADER, *PPROCESS_HEADER;
 
-PPROCESS_DATA ProcBuffer;
-SIZE_T ProcBufferAmount; // Amount of processes in buffer
-SIZE_T ProcBufferLength;		// size of buffer in bytes
-SIZE_T ProcBufferOffset; // Current offset
+void *ProcBufferPtr;
+SIZE_T ProcBufferLength; // size of buffer in bytes
+SIZE_T ProcBufferOffset; // Current offset of pointer
+
+BOOLEAN finished_test_print_buffer;
