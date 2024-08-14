@@ -8,8 +8,9 @@ PDEVICE_OBJECT pDeviceObject;
 UNICODE_STRING dev, dos;
 
 typedef struct ProcHeader {
+	// string is WCHAR
 	SIZE_T image_size;
-	SIZE_T string_size; 
+	SIZE_T string_length; //dont forget sizeof(WCHAR)
 } PROCESS_HEADER, *PPROCESS_HEADER;
 
 void *ProcBufferPtr;
