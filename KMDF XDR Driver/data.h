@@ -16,5 +16,6 @@ typedef struct ProcHeader {
 void *ProcBufferPtr;
 SIZE_T ProcBufferLength; // size of buffer in bytes
 SIZE_T ProcBufferOffset; // Current offset of pointer
+SIZE_T ProcBufferBytesWritten; //is this necessary?
 
 BOOLEAN finished_test_print_buffer;

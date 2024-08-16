@@ -1,4 +1,6 @@
 #include "communication.h"
+#include "helper_funcs.h"
+#include "data.h"
 
 //// Communication
 NTSTATUS CreateCall(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
@@ -28,28 +30,36 @@ NTSTATUS CloseCall(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 NTSTATUS IoControl(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
     UNREFERENCED_PARAMETER(DeviceObject);
     NTSTATUS status = STATUS_UNSUCCESSFUL;
-    ULONG ByteIO = 0;
+    ULONG ReturnLength = 0;
 
     PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(Irp); //stack we need to communicate with driver
-
     ULONG ControlCode = stack->Parameters.DeviceIoControl.IoControlCode;
 
-    if (ControlCode == IO_GET_HELLOWORLD) {
-        PULONG Output = (PULONG)Irp->AssociatedIrp.SystemBuffer; // Can cast this to any struct/output you want
-        *Output = 1234567;
+    PVOID Buffer = Irp->AssociatedIrp.SystemBuffer;
+    //ULONG BufferInLength = stack->Parameters.DeviceIoControl.InputBufferLength;
+    //ULONG BufferOutLength = stack->Parameters.DeviceIoControl.OutputBufferLength;
 
-        DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "Helloworld requested.\n");
+    PULONG OutputNumber = (PULONG)Buffer;
 
-        status = STATUS_SUCCESS;
-        ByteIO = sizeof(*Output);
-    }
-    else {
-        ByteIO = 0;
+    switch (ControlCode) {
+        case IO_RECEIVE_HELLOWORLD:
+            DebugMessage("Helloworld requested.\n");
+            *OutputNumber = 1234567;
+            status = STATUS_SUCCESS;
+            ReturnLength = sizeof(*OutputNumber);
+            break;
+        case IO_RECEIVE_PROC_BUFFER:
+            DebugMessage("Process buffer requested.\n");
+            RtlCopyMemory(Buffer, ProcBufferPtr, ProcBufferBytesWritten);
+            ReturnLength = (ULONG)ProcBufferBytesWritten;
+            break;
+        default:
+            status = STATUS_INVALID_PARAMETER;
+            break;
     }
 
     Irp->IoStatus.Status = status;
-    Irp->IoStatus.Information = ByteIO;
+    Irp->IoStatus.Information = ReturnLength;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
-
     return status;
 }

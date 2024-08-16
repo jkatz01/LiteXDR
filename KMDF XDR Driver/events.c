@@ -30,7 +30,6 @@ VOID ModuleLoadCallback(_In_opt_ PUNICODE_STRING FullImageName, _In_ HANDLE Proc
         // Add header to buffer
         // Add string data to buffer
         // Check they will fit inside buffer
-
         SIZE_T str_length_bytes = (SIZE_T)FullImageName->Length * sizeof(WCHAR);
 
         if (ProcBufferOffset + sizeof(PROCESS_HEADER) + str_length_bytes < ProcBufferLength) { //make sure there is space
@@ -41,9 +40,13 @@ VOID ModuleLoadCallback(_In_opt_ PUNICODE_STRING FullImageName, _In_ HANDLE Proc
             // Add data
             RtlCopyMemory(((char*)ProcBufferPtr + ProcBufferOffset), FullImageName->Buffer, (my_header.string_length * sizeof(WCHAR)) );
             ProcBufferOffset += (my_header.string_length * sizeof(WCHAR));
+            ProcBufferBytesWritten = ProcBufferOffset;
         }
         else {
+            ProcBufferBytesWritten = ProcBufferOffset;
             PrintProcBufferKernel();
         }
     }
 }
+
+// TODO: add function to reset buffer

@@ -32,6 +32,8 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT  DriverObject, PUNICODE_STRING RegistryPath
 
     DriverObject->Flags |= DO_DIRECT_IO;
     DriverObject->Flags &= ~DO_DEVICE_INITIALIZING;
+
+
     ProcBufferOffset = 0;
     ProcBufferLength = 2400;
     ProcBufferPtr = (void*) ExAllocatePool2(POOL_FLAG_NON_PAGED, ProcBufferLength, MyTag);
