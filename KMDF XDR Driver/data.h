@@ -3,6 +3,8 @@
 
 #define MyTag 'abcd'
 
+#define PROC_BUFFER_MAX_SIZE 2400
+
 ULONG exampleNumber;
 PDEVICE_OBJECT pDeviceObject;
 UNICODE_STRING dev, dos;

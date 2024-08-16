@@ -52,6 +52,7 @@ NTSTATUS IoControl(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
             DebugMessage("Process buffer requested.\n");
             RtlCopyMemory(Buffer, ProcBufferPtr, ProcBufferBytesWritten);
             ReturnLength = (ULONG)ProcBufferBytesWritten;
+            status = STATUS_SUCCESS;
             break;
         default:
             status = STATUS_INVALID_PARAMETER;

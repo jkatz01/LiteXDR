@@ -10,4 +10,9 @@ int main()
     std::cout << "Number: " << number << std::endl;
 
     std::cout << "Hello World!\n";
+
+    Driver.GetProcBuffer();
+
+    std::cout << "ReturnLength = " << Driver.ReturnLength << std::endl;
+
 }
