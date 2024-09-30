@@ -25,11 +25,12 @@ public:
 			std::cout << "Image size: " << h_image_size << " String size: " << h_string_length << std::endl;
 			i += sizeof(PROCESS_HEADER);
 			PWCH string_buffer = ((PWCH)((char*)Buffer + i));
-			//std::cout << "Name:" << string_buffer << std::endl;
 			printf("Name: %S\n", string_buffer);
 			i += h_string_length * sizeof(WCHAR);
 		}
 	}
+
+	// Convert process list to easier data format
 
 	void GetProcBuffer() {
 		if (DriverHandle != INVALID_HANDLE_VALUE && DriverHandle != NULL) {
