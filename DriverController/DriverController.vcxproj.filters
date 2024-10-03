@@ -23,7 +23,10 @@
     <ClInclude Include="communication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="kernelinterface.h">
+    <ClInclude Include="KernelInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessDatabase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

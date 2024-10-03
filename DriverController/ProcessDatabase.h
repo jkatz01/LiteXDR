@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "communication.h"
+
 typedef struct {
     int ImageSize;
     std::string ProcessName; 
@@ -29,11 +31,31 @@ public:
     }
     
     bool IsKnownProcess(size_t hash) {
-        try { ProcessHashmap.at(hash); } 
-        catch(const std::out_of_range &e) {
+        if (ProcessHashmap.find(hash) == ProcessHashmap.end()) {
             return false;
         }
         return true;
+    }
+
+    void AddProcBufferToDatabase(PVOID Buffer, ULONG ReturnLength)
+    {
+        SIZE_T i = 0;
+        while (i < ReturnLength) {
+            SIZE_T h_image_size = ((PPROCESS_HEADER)((char*)Buffer + i))->image_size;
+            SIZE_T h_string_length = ((PPROCESS_HEADER)((char*)Buffer + i))->string_length;
+
+            i += sizeof(PROCESS_HEADER);
+            
+            PWCH string_buffer = ((PWCH)((char*)Buffer + i));
+            std::string proc_name;
+            proc_name.resize(h_string_length);
+            sprintf_s(&proc_name[0], h_string_length, "%S", string_buffer);
+            
+            i += h_string_length * sizeof(WCHAR);
+
+            ProcessData p = {h_image_size, proc_name};
+            InsertNewProcess(p);
+        }
     }
     
     void PrintProcessData(size_t hash) {

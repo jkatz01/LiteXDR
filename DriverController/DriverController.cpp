@@ -1,5 +1,6 @@
 #include <iostream>
-#include "kernelinterface.h"
+#include "KernelInterface.h"
+#include "ProcessDatabase.h"
 
 int main()
 {
@@ -14,5 +15,11 @@ int main()
     std::cout << "ReturnLength = " << Driver.ReturnLength << std::endl;
 
     Driver.PrintProcBufferKernel();
+
+    ProcessDatabase* database = new ProcessDatabase;
+
+    std::cout << "Printing hashmap contents..." << std::endl;
+    database->AddProcBufferToDatabase(Driver.Buffer, Driver.ReturnLength);
+    database->PrintTable();
 
 }
