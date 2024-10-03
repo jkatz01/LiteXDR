@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 
@@ -22,7 +23,8 @@ public:
         return hash;
     }
     
-    void InsertNewProcess(size_t hash, ProcessData proc) {
+    void InsertNewProcess(ProcessData proc) {
+        size_t hash = HashProcess(proc);
         ProcessHashmap.insert({hash, proc});
     }
     
@@ -49,9 +51,39 @@ public:
         ProcessHashmap.erase(hash);
     }
     
-	//TODO: 
-    void SaveDatabaseToFile();
-	void LoadDatabaseFromFile();
+    void SaveDatabaseToFile() {
+        std::ofstream savefile("database_save.bin", std::ios::binary);
+
+        int item_count = ProcessHashmap.size();
+        savefile.write((char*)&item_count, sizeof(item_count));
+
+        for (auto& i : ProcessHashmap) {
+            savefile.write((char*)&i.second.ImageSize, sizeof(i.second.ImageSize));
+
+            size_t size = i.second.ProcessName.size();
+            savefile.write((char*)&size, sizeof(size));
+            savefile.write(&i.second.ProcessName[0], size);
+        }
+    }
+	void LoadDatabaseFromFile() {
+        std::ifstream savefile("database_save.bin", std::ios::binary);
+        int item_count;
+        savefile.read((char*)&item_count, sizeof(item_count));  // get item count
+
+        for (int i = 0; i < item_count; i++) {
+            int x;
+            savefile.read((char*)&x, sizeof(x));                // get ImageSize
+            
+            std::string str;
+            size_t size; 
+            savefile.read((char*)&size, sizeof(size));                //get ProcessName
+            str.resize(size);
+            savefile.read(&str[0], size);
+
+            ProcessData p = {x, str};
+            InsertNewProcess(p);
+        }
+    }
 };
 
 void test_database()
@@ -63,7 +95,7 @@ void test_database()
     std::cout << "Process to hash: " << h1<< std::endl;
     
     std::cout << "Inserting new process to table: " << std::endl;
-    database->InsertNewProcess(h1, p1);
+    database->InsertNewProcess(p1);
     
     std::cout << "Checking if real process is known in table: " << database->IsKnownProcess(h1) << std::endl;
     std::cout << "Checking if fake process is known in table: " << database->IsKnownProcess(3154543) << std::endl;
@@ -77,20 +109,24 @@ void test_database()
     
     std::cout << std::endl<< std::endl<< std::endl << "adding more processes" << std::endl; 
     ProcessData p2 = {800, "CoolWindowsProcess"};
-    database->InsertNewProcess(database->HashProcess(p2), p2);
+    database->InsertNewProcess(p2);
     ProcessData p3 = {801, "FunnyProcess"};
-    database->InsertNewProcess(database->HashProcess(p3), p3);
+    database->InsertNewProcess(p3);
     ProcessData p4 = {802, "MoreProcess"};
-    database->InsertNewProcess(database->HashProcess(p4), p4);
+    database->InsertNewProcess(p4);
     ProcessData p5 = {803, "ComputerVirus"};
-    database->InsertNewProcess(database->HashProcess(p5), p5);
+    database->InsertNewProcess(p5);
     ProcessData p6 = {804, "Calculator.dll"};
-    database->InsertNewProcess(database->HashProcess(p6), p6);
+    database->InsertNewProcess(p6);
     database->PrintTable();
     
     std::cout << "Erasing..." << std::endl;
     database->DeleteProcess(database->HashProcess(p3));
     database->PrintTable();
 
+    std::cout << "Saving and loading table..." << std::endl;
+    database->SaveDatabaseToFile();
+    database->LoadDatabaseFromFile();
+    database->PrintTable();
 }
 
