@@ -30,7 +30,10 @@ public:
 		}
 	}
 
-	// Convert process list to easier data format
+	void DeleteBufferContents() {
+		memset(Buffer, 0, ReturnLength);
+		ReturnLength = 0;
+	}
 
 	void GetProcBuffer() {
 		if (DriverHandle != INVALID_HANDLE_VALUE && DriverHandle != NULL) {

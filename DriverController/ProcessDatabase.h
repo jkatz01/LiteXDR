@@ -95,12 +95,17 @@ public:
     }
     
     void PrintTable() {
-        printf("TABLE SIZE: %d\n", ProcessHashmap.size());
+        printf("TABLE SIZE: %zu\n", ProcessHashmap.size());
         for (auto& i: ProcessHashmap)
         {
             printf("HASH: %20zu SIZE: %5d NAME: %s\n", (size_t)i.first, i.second.proc.ImageSize, i.second.proc.ProcessName.c_str());
         }
     }
+
+    SIZE_T GetTableSize() {
+        return ProcessHashmap.size();
+    }
+
     void DeleteProcess(size_t hash) {
         ProcessHashmap.erase(hash);
     }
@@ -123,6 +128,10 @@ public:
     }
 	void LoadDatabaseFromFile() {
         std::ifstream savefile("database_save.bin", std::ios::binary);
+        if (savefile.fail()) {
+            std::cout << "Save file database_save.bin does not exist or failed" << std::endl;
+            return;
+        }
         int item_count;
         savefile.read((char*)&item_count, sizeof(item_count));  // get item count
 
