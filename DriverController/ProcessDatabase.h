@@ -5,15 +5,22 @@
 
 #include "communication.h"
 
+#define TRUSTED_COUNT 5
+
 typedef struct {
     int ImageSize;
     std::string ProcessName; 
 } ProcessData;
 
+typedef struct {
+    ProcessData proc;
+    int Count;
+} ProcessDataCounted;
+
 class ProcessDatabase
 {
 private:
-    std::unordered_map<size_t, ProcessData> ProcessHashmap;
+    std::unordered_map<size_t, ProcessDataCounted> ProcessHashmap;
 public:
     std::string TestString = "test string";
     
@@ -25,12 +32,36 @@ public:
         return hash;
     }
     
-    void InsertNewProcess(ProcessData proc) {
+    void InsertProcess(ProcessData proc) {
         size_t hash = HashProcess(proc);
-        ProcessHashmap.insert({hash, proc});
+        auto p = ProcessHashmap.find(hash);
+        if (p == ProcessHashmap.end()) {
+            ProcessHashmap.insert({ hash, {proc, 1} });
+        }
+        else {
+            p->second.Count++;
+        }
+    }
+
+    void InsertProcessCounted(ProcessDataCounted proc) {
+        size_t hash = HashProcess(proc.proc);
+        ProcessHashmap.insert({ hash, proc });
+    }
+
+    bool IsProcessTrusted(size_t hash) {
+        auto p = ProcessHashmap.find(hash);
+        if (p == ProcessHashmap.end()) {
+            return false;
+        }
+        else if (p->second.Count < TRUSTED_COUNT) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
     
-    bool IsKnownProcess(size_t hash) {
+    bool ProcessExists(size_t hash) {
         if (ProcessHashmap.find(hash) == ProcessHashmap.end()) {
             return false;
         }
@@ -54,19 +85,20 @@ public:
             i += h_string_length * sizeof(WCHAR);
 
             ProcessData p = {h_image_size, proc_name};
-            InsertNewProcess(p);
+            InsertProcess(p);
         }
     }
     
     void PrintProcessData(size_t hash) {
-        ProcessData *proc = &ProcessHashmap.at(hash);
+        ProcessData *proc = &ProcessHashmap.at(hash).proc;
         printf("HASH: %20zu SIZE: %5d NAME: %s\n", hash, proc->ImageSize, proc->ProcessName.c_str());
     }
     
     void PrintTable() {
+        printf("TABLE SIZE: %d\n", ProcessHashmap.size());
         for (auto& i: ProcessHashmap)
         {
-            printf("HASH: %20zu SIZE: %5d NAME: %s\n", (size_t)i.first, i.second.ImageSize, i.second.ProcessName.c_str());
+            printf("HASH: %20zu SIZE: %5d NAME: %s\n", (size_t)i.first, i.second.proc.ImageSize, i.second.proc.ProcessName.c_str());
         }
     }
     void DeleteProcess(size_t hash) {
@@ -80,11 +112,13 @@ public:
         savefile.write((char*)&item_count, sizeof(item_count));
 
         for (auto& i : ProcessHashmap) {
-            savefile.write((char*)&i.second.ImageSize, sizeof(i.second.ImageSize));
+            savefile.write((char*)&i.second.proc.ImageSize, sizeof(i.second.proc.ImageSize));
 
-            size_t size = i.second.ProcessName.size();
+            size_t size = i.second.proc.ProcessName.size();
             savefile.write((char*)&size, sizeof(size));
-            savefile.write(&i.second.ProcessName[0], size);
+            savefile.write(&i.second.proc.ProcessName[0], size);
+
+            savefile.write((char*)&i.second.Count, sizeof(i.second.Count));
         }
     }
 	void LoadDatabaseFromFile() {
@@ -94,6 +128,7 @@ public:
 
         for (int i = 0; i < item_count; i++) {
             int x;
+            int c;
             savefile.read((char*)&x, sizeof(x));                // get ImageSize
             
             std::string str;
@@ -102,8 +137,10 @@ public:
             str.resize(size);
             savefile.read(&str[0], size);
 
-            ProcessData p = {x, str};
-            InsertNewProcess(p);
+            savefile.read((char*)&c, sizeof(c));
+
+            ProcessDataCounted p = {{x, str}, c};
+            InsertProcessCounted(p);
         }
     }
 };
@@ -117,10 +154,10 @@ void test_database()
     std::cout << "Process to hash: " << h1<< std::endl;
     
     std::cout << "Inserting new process to table: " << std::endl;
-    database->InsertNewProcess(p1);
+    database->InsertProcess(p1);
     
-    std::cout << "Checking if real process is known in table: " << database->IsKnownProcess(h1) << std::endl;
-    std::cout << "Checking if fake process is known in table: " << database->IsKnownProcess(3154543) << std::endl;
+    std::cout << "Checking if real process is known in table: " << database->ProcessExists(h1) << std::endl;
+    std::cout << "Checking if fake process is known in table: " << database->ProcessExists(3154543) << std::endl;
     
     
     std::cout << "Print process data: " << std::endl;
@@ -131,15 +168,15 @@ void test_database()
     
     std::cout << std::endl<< std::endl<< std::endl << "adding more processes" << std::endl; 
     ProcessData p2 = {800, "CoolWindowsProcess"};
-    database->InsertNewProcess(p2);
+    database->InsertProcess(p2);
     ProcessData p3 = {801, "FunnyProcess"};
-    database->InsertNewProcess(p3);
+    database->InsertProcess(p3);
     ProcessData p4 = {802, "MoreProcess"};
-    database->InsertNewProcess(p4);
+    database->InsertProcess(p4);
     ProcessData p5 = {803, "ComputerVirus"};
-    database->InsertNewProcess(p5);
+    database->InsertProcess(p5);
     ProcessData p6 = {804, "Calculator.dll"};
-    database->InsertNewProcess(p6);
+    database->InsertProcess(p6);
     database->PrintTable();
     
     std::cout << "Erasing..." << std::endl;

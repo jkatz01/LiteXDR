@@ -4,7 +4,7 @@
 
 void PrintProcBufferKernel()
 {
-    if (finished_test_print_buffer == FALSE) {
+    if (buffer_full == FALSE) {
         SIZE_T i = 0;
         while (i < ProcBufferOffset) {
             SIZE_T h_image_size = ((PPROCESS_HEADER)((char*)ProcBufferPtr + i))->image_size;
@@ -15,9 +15,11 @@ void PrintProcBufferKernel()
             DebugMessage("Name: %S\n\n", string_buffer);
             i += h_string_length * sizeof(WCHAR);
         }
-        finished_test_print_buffer = TRUE;
+        buffer_full = TRUE;
     }
-    DebugMessage("Process data buffer is full, doing nothing");
+    else {
+        DebugMessage("Process data buffer is full, doing nothing\n");
+    }
 }
 
 //// Callback function for module load notification
@@ -48,5 +50,3 @@ VOID ModuleLoadCallback(_In_opt_ PUNICODE_STRING FullImageName, _In_ HANDLE Proc
         }
     }
 }
-
-// TODO: add function to reset buffer

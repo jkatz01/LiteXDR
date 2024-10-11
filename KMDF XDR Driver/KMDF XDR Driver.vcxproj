@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="communication.c" />
+    <ClCompile Include="data.c" />
     <ClCompile Include="driver.c" />
     <ClCompile Include="events.c" />
   </ItemGroup>

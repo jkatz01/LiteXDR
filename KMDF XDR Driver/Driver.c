@@ -43,7 +43,7 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT  DriverObject, PUNICODE_STRING RegistryPath
     else {
         DebugMessage("allocated %zu bytes for ProcBuffer\n", ProcBufferLength);
     }
-    finished_test_print_buffer = FALSE;
+    buffer_full = FALSE;
 
     return status;
 }
