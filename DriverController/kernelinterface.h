@@ -42,7 +42,8 @@ public:
 				std::cout << "DeviceIoControl failed" << std::endl;
 			}
 			else {
-				std::cout << "DeviceIoControl success. " << ReturnLength << " bytes written into buffer." << std::endl;
+				//std::cout << "DeviceIoControl success. " << ReturnLength << " bytes written into buffer." << std::endl;
+				;
 			}
 		}
 	}
