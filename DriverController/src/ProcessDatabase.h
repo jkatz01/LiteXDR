@@ -148,7 +148,7 @@ public:
 
             savefile.read((char*)&c, sizeof(c));
 
-            ProcessDataCounted p = {{x, str}, c};
+            ProcessDataCounted p = {{x, str}, c};               // get process count
             InsertProcessCounted(p);
         }
     }

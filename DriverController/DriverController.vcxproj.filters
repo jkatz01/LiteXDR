@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DriverController.cpp">
+    <ClCompile Include="src\DriverController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="communication.h">
+    <ClInclude Include="src\communication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="KernelInterface.h">
+    <ClInclude Include="src\KernelInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessDatabase.h">
+    <ClInclude Include="src\ProcessDatabase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

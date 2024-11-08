@@ -19,38 +19,38 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="KMDFXDRDriver.inf">
+    <Inf Include="src\KMDFXDRDriver.inf">
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="driver.c">
+    <ClCompile Include="src\driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="events.c">
+    <ClCompile Include="src\events.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="communication.c">
+    <ClCompile Include="src\communication.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="data.c">
+    <ClCompile Include="src\data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="driver.h">
+    <ClInclude Include="src\driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="events.h">
+    <ClInclude Include="src\events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="communication.h">
+    <ClInclude Include="src\communication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="data.h">
+    <ClInclude Include="src\data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="helper_funcs.h">
+    <ClInclude Include="src\helper_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

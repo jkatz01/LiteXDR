@@ -107,23 +107,23 @@
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Inf Include="KMDFXDRDriver.inf" />
+    <Inf Include="src\KMDFXDRDriver.inf" />
   </ItemGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="communication.c" />
-    <ClCompile Include="data.c" />
-    <ClCompile Include="driver.c" />
-    <ClCompile Include="events.c" />
+    <ClCompile Include="src\communication.c" />
+    <ClCompile Include="src\data.c" />
+    <ClCompile Include="src\driver.c" />
+    <ClCompile Include="src\events.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="communication.h" />
-    <ClInclude Include="data.h" />
-    <ClInclude Include="driver.h" />
-    <ClInclude Include="events.h" />
-    <ClInclude Include="helper_funcs.h" />
+    <ClInclude Include="src\communication.h" />
+    <ClInclude Include="src\data.h" />
+    <ClInclude Include="src\driver.h" />
+    <ClInclude Include="src\events.h" />
+    <ClInclude Include="src\helper_funcs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

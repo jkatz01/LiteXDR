@@ -127,12 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DriverController.cpp" />
+    <ClCompile Include="src\DriverController.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="communication.h" />
-    <ClInclude Include="KernelInterface.h" />
-    <ClInclude Include="ProcessDatabase.h" />
+    <ClInclude Include="src\communication.h" />
+    <ClInclude Include="src\KernelInterface.h" />
+    <ClInclude Include="src\ProcessDatabase.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

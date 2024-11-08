@@ -15,14 +15,19 @@ int main()
 
         if (Driver.ReturnLength > 0) {
             std::cout << "Read buffer with size: " << Driver.ReturnLength << std::endl;
+
             database->AddProcBufferToDatabase(Driver.Buffer, Driver.ReturnLength);
+
             std::cout << "Table size: " << database->GetTableSize() << std::endl;
+
+            database->SaveDatabaseToFile();
         }
         else {
             std::cout << "." << std::endl;
         }
 
         Driver.DeleteBufferContents();
+
         Sleep(3000);
     }
 
