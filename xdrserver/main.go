@@ -1,16 +1,23 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"bytes"
-	"encoding/binary"
+	"net/http/httputil"
 )
 
 func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("Something")
+	res, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(res))
+	// Some kind of problem when reading 0 in a byte
+	fmt.Println(req.Header.Get("PostFieldSize"))
 	buffer, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Fatal("request", err)

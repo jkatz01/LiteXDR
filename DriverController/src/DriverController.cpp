@@ -9,7 +9,7 @@ int main()
     while (TRUE) {
         database->HashesToServer_Test();
         std::cout << "--------------------" << std::endl;
-        Sleep(3000);
+        Sleep(5000);
     }
     /*
     KernelInterface Driver = KernelInterface("\\\\.\\xdr");
