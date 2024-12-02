@@ -5,6 +5,13 @@
 
 int main()
 {
+    ProcessDatabase* database = new ProcessDatabase;
+    while (TRUE) {
+        database->HashesToServer_Test();
+        std::cout << "--------------------" << std::endl;
+        Sleep(3000);
+    }
+    /*
     KernelInterface Driver = KernelInterface("\\\\.\\xdr");
     ProcessDatabase* database = new ProcessDatabase;
 
@@ -32,4 +39,6 @@ int main()
     }
 
     database->SaveDatabaseToFile();
+    */
+
 }

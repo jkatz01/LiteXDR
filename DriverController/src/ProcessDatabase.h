@@ -133,13 +133,13 @@ public:
         std::vector<size_t> hashes;
         HashProcBuffer(Buffer, ReturnLength, &hashes);
 
-        std::stringstream hashes_str(std::ios::binary);
+        std::stringstream hashes_stream(std::ios::binary);
         for (size_t& h : hashes) {
-            hashes_str << h;
+            hashes_stream << h;
         }
 
         // send request
-        char url[22] = "http://127.0.0.1:8080";
+        char url[22] = "http://127.0.0.1:1337";
         try {
             curlpp::Easy request;
 
@@ -147,14 +147,15 @@ public:
             request.setOpt(new curlpp::options::Verbose(true));
 
             std::list<std::string> header;
-            header.push_back("Content-Type: hash-send");
+            //  "arbitrary binary data"
+            header.push_back("Content-Type: application/octet-stream");
 
             request.setOpt(new curlpp::options::HttpHeader(header));
 
             // Send stringstream created from the vector<size_t> of hashes
             // When reading in server, needs to load the stringstream into size_t
-            request.setOpt(new curlpp::options::PostFields(hashes_str.str()));
-            request.setOpt(new curlpp::options::PostFieldSize((long)hashes_str.str().size()));
+            request.setOpt(new curlpp::options::PostFields(hashes_stream.str()));
+            request.setOpt(new curlpp::options::PostFieldSize((long)hashes_stream.str().size()));
 
             request.perform();
         }
@@ -166,6 +167,49 @@ public:
         }
 
         // vector should free itself
+    }
+
+    void HashesToServer_Test() {
+        std::vector<size_t> hashes = {99997, 99998, 99999};
+        std::stringstream hashes_stream(std::ios::binary);
+
+        size_t bytes_size = sizeof(hashes[0]) * hashes.size();
+        const char* hashes_raw = (char*)hashes.data();
+
+        // send request
+        char url[33] = "http://localhost:1337/check_hash";
+        try {
+            curlpp::Easy request;
+
+            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Verbose(true));
+
+            std::list<std::string> header;
+            //  "arbitrary binary data"
+            header.push_back("Content-Type: application/octet-stream");
+
+            request.setOpt(new curlpp::options::HttpHeader(header));
+
+            // Send stringstream created from the vector<size_t> of hashes
+            // When reading in server, needs to load the stringstream into size_t
+
+            printf("bytes: ");
+            for (int i = 0; i < bytes_size; i++) {
+                printf("%hhu ", hashes_raw[i]);
+            }
+            printf("\n");
+            
+            request.setOpt(new curlpp::options::PostFields(hashes_raw));
+            request.setOpt(new curlpp::options::PostFieldSize((long)bytes_size));
+
+            request.perform();
+        }
+        catch (curlpp::LogicError& e) {
+            std::cout << e.what() << std::endl;
+        }
+        catch (curlpp::RuntimeError& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
     
     void PrintProcessData(size_t hash) {
