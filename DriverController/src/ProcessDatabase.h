@@ -133,10 +133,8 @@ public:
         std::vector<size_t> hashes;
         HashProcBuffer(Buffer, ReturnLength, &hashes);
 
-        std::stringstream hashes_stream(std::ios::binary);
-        for (size_t& h : hashes) {
-            hashes_stream << h;
-        }
+        size_t bytes_size = sizeof(hashes[0]) * hashes.size();
+        std::string hashes_raw((char*)hashes.data(), bytes_size);
 
         // send request
         char url[33] = "http://localhost:1337/check_hash";
@@ -154,8 +152,8 @@ public:
 
             // Send stringstream created from the vector<size_t> of hashes
             // When reading in server, needs to load the stringstream into size_t
-            request.setOpt(new curlpp::options::PostFields(hashes_stream.str()));
-            request.setOpt(new curlpp::options::PostFieldSize((long)hashes_stream.str().size()));
+            request.setOpt(new curlpp::options::PostFields(hashes_raw));
+            request.setOpt(new curlpp::options::PostFieldSize((long)bytes_size));
 
             request.perform();
         }
