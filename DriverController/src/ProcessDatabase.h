@@ -172,6 +172,8 @@ public:
 
         size_t bytes_size = sizeof(hashes[0]) * hashes.size();
         std::string hashes_raw((char*)hashes.data(), bytes_size);
+
+        std::stringstream response;
         
         // send request
         char url[33] = "http://localhost:1337/check_hash";
@@ -187,6 +189,7 @@ public:
 
             request.setOpt(new curlpp::options::PostFields(hashes_raw));
             request.setOpt(new curlpp::options::PostFieldSize((long)bytes_size));
+            request.setOpt(new curlpp::options::WriteStream(&response));
 
             printf("bytes: ");
             for (int i = 0; i < bytes_size; i++) {
@@ -197,11 +200,28 @@ public:
             request.perform();
         }
         catch (curlpp::LogicError& e) {
-            std::cout << e.what() << std::endl;
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
         }
         catch (curlpp::RuntimeError& e) {
-            std::cout << e.what() << std::endl;
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
         }
+
+        if (response.str().size() == 0) {
+            return;
+        }
+
+        std::string s = response.str();
+        size_t hashes_size = (s.size() / sizeof(size_t));
+        size_t * response_hashes = new size_t[hashes_size];
+        response_hashes = (size_t*)s.data();
+
+        std::cout << "Response: ";
+        for (int i = 0; i < hashes_size; i++) {
+            printf("%zu ", response_hashes[i]);
+        }
+        std::cout << std::endl;
+
+        delete [] response_hashes;
     }
     
     void PrintProcessData(size_t hash) {

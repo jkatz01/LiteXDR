@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	//"net/http/httputil"
 )
 
@@ -32,7 +33,8 @@ func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
 	// 	log.Fatal(err)
 	// }
 	// fmt.Println(string(res))
-	// Some kind of problem when reading 0 in a byte
+
+	// Read hashes from request
 	fmt.Println(req.Header.Get("PostFieldSize"))
 	buffer, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -42,18 +44,28 @@ func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
 	hash_buf := bytes.NewReader(buffer)
 	var num_hashes = len(buffer) / 8
 	var hashes = make([]uint64, num_hashes)
+	var unknown_hashes = make([]uint64, 0)
 	binary.Read(hash_buf, binary.LittleEndian, &hashes)
 	fmt.Println(hashes)
-
+	
+	// Add hashes to map 
 	for _, h := range hashes {
 		curproc, ok := process_map[h]
 		if ok {
 			process_map[h] = ProcessData{0, "no_name", curproc.proc_count + 1}
 		} else {
+			unknown_hashes = append(unknown_hashes, h)
 			process_map[h] = ProcessData{0, "no_name", 1}
 		}
 		// if some data is unknown, http response to ask for details
 	}
+
+	//Write response for unknown hashes 
+	w_buf := new(bytes.Buffer)
+	binary.Write(w_buf, binary.LittleEndian, &unknown_hashes)
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", strconv.Itoa( w_buf.Len() ))
+	w.Write(w_buf.Bytes())
 
 	PrintMap()
 }
