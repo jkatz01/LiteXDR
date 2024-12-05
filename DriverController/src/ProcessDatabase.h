@@ -97,9 +97,8 @@ public:
             i += sizeof(PROCESS_HEADER);
             
             PWCH string_buffer = ((PWCH)((char*)Buffer + i));
-            std::string proc_name;
-            proc_name.resize(h_string_length);
-            sprintf_s(&proc_name[0], h_string_length, "%S", string_buffer);
+            std::wstring ws(string_buffer);
+            std::string proc_name(ws.begin(), ws.end());
             
             i += h_string_length * sizeof(WCHAR);
 
@@ -118,9 +117,8 @@ public:
             i += sizeof(PROCESS_HEADER);
 
             PWCH string_buffer = ((PWCH)((char*)Buffer + i));
-            std::string proc_name;
-            proc_name.resize(h_string_length);
-            sprintf_s(&proc_name[0], h_string_length, "%S", string_buffer);
+            std::wstring ws(string_buffer);
+            std::string proc_name(ws.begin(), ws.end());
 
             i += h_string_length * sizeof(WCHAR);
 
@@ -130,9 +128,7 @@ public:
     }
 
     std::string HashesToProcessDetailJson(std::vector<size_t>& send_hashes) {
-        /*std::string send_str( "[ {\"id\": \"99997\", \"img_size\": \"1200\", \"proc_name\": \"CoolProcessName\" }, 
-                                   {\"id\": \"99998\", \"img_size\": \"200\", \"proc_name\": \"AnotherProcessName\" } ]" );*/
-
+        std::cout << "-------------- making json before  -----------" << std::endl;
         std::string send_str = "[ ";
         for (int i = 0; i < send_hashes.size(); i++) {
             if (!ProcessExists(send_hashes[i])) {
@@ -140,17 +136,27 @@ public:
             }
             send_str.append("{ ");
             send_str.append("\"id\": ");
-            char buf[21];
-            sprintf_s(buf, 21, "\"%zu\", ", send_hashes[i]);
-            send_str.append(buf);
+            send_str.append("\"");
+            send_str.append(std::to_string(send_hashes[i]));
+            send_str.append("\", ");
 
             send_str.append("\"img_size\": ");
-            sprintf_s(buf, 21, "\"%zu\", ", LocalProcMap[send_hashes[i]].proc.ImageSize);
-            send_str.append(buf);
+            send_str.append("\"");
+            send_str.append(std::to_string(LocalProcMap[send_hashes[i]].proc.ImageSize));
+            send_str.append("\", ");
 
             send_str.append("\"proc_name\": ");
             send_str.append("\"");
-            send_str.append(LocalProcMap[send_hashes[i]].proc.ProcessName);
+            //send_str.append(LocalProcMap[send_hashes[i]].proc.ProcessName);
+            std::string name;
+            for (char c : LocalProcMap[send_hashes[i]].proc.ProcessName) {
+                name += c;
+                if (c == '\\') {
+                    name += '\\';
+                }
+            }
+            std::cout << name.size() << std::endl;
+            send_str.append(name);
             send_str.append("\"");
             send_str.append("}");
             if (!(i == send_hashes.size() - 1)) {
@@ -198,7 +204,6 @@ public:
         if (response.str().size() == 0) {
             return;
         }
-
         std::string s = response.str();
         size_t hashes_size = (s.size() / sizeof(size_t));
         size_t* response_hashes = (size_t*)s.data();

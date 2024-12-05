@@ -56,6 +56,7 @@ func HashesRequestProcessDetails(w http.ResponseWriter, req *http.Request) {
 			process_map[uid] = ProcessData{uint64(imgs), val.ProcName, curproc.ProcCount }
 		} else {
 			log.Println("Process details sent for nonexistent hash")
+			log.Println(val.ID)
 		}
 	}
 }

@@ -5,13 +5,7 @@
 
 int main()
 {
-    ProcessDatabase* database = new ProcessDatabase;
-    while (TRUE) {
-        database->TEST_HashesToServer();
-        std::cout << "--------------------" << std::endl;
-        Sleep(5000);
-    }
-    /*KernelInterface Driver = KernelInterface("\\\\.\\xdr");
+    KernelInterface Driver = KernelInterface("\\\\.\\xdr");
     ProcessDatabase* database = new ProcessDatabase;
 
     database->LoadDatabaseFromFile();
@@ -26,7 +20,9 @@ int main()
 
             std::cout << "Table size: " << database->GetTableSize() << std::endl;
 
-            database->SaveDatabaseToFile();
+            database->SendHashesToServer(Driver.Buffer, Driver.ReturnLength);
+
+            //database->SaveDatabaseToFile();
         }
         else {
             std::cout << "." << std::endl;
@@ -38,6 +34,6 @@ int main()
     }
 
     database->SaveDatabaseToFile();
-    */
+    
 
 }
