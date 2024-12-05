@@ -129,54 +129,50 @@ public:
         }
     }
 
+    std::string HashesToProcessDetailJson(std::vector<size_t>& send_hashes) {
+        /*std::string send_str( "[ {\"id\": \"99997\", \"img_size\": \"1200\", \"proc_name\": \"CoolProcessName\" }, 
+                                   {\"id\": \"99998\", \"img_size\": \"200\", \"proc_name\": \"AnotherProcessName\" } ]" );*/
+
+        std::string send_str = "[ ";
+        for (int i = 0; i < send_hashes.size(); i++) {
+            if (!ProcessExists(send_hashes[i])) {
+                return std::string("Hash does not exist");
+            }
+            send_str.append("{ ");
+            send_str.append("\"id\": ");
+            char buf[21];
+            sprintf_s(buf, 21, "\"%zu\", ", send_hashes[i]);
+            send_str.append(buf);
+
+            send_str.append("\"img_size\": ");
+            sprintf_s(buf, 21, "\"%zu\", ", LocalProcMap[send_hashes[i]].proc.ImageSize);
+            send_str.append(buf);
+
+            send_str.append("\"proc_name\": ");
+            send_str.append("\"");
+            send_str.append(LocalProcMap[send_hashes[i]].proc.ProcessName);
+            send_str.append("\"");
+            send_str.append("}");
+            if (!(i == send_hashes.size() - 1)) {
+                send_str.append(",");
+            }
+        }
+        send_str.append(" ]");
+
+        std::cout << send_str << std::endl;
+        return send_str;
+    }
+
     void SendHashesToServer(PVOID Buffer, ULONG ReturnLength) {
         std::vector<size_t> hashes;
         HashProcBuffer(Buffer, ReturnLength, &hashes);
 
         size_t bytes_size = sizeof(hashes[0]) * hashes.size();
         std::string hashes_raw((char*)hashes.data(), bytes_size);
-
-        // send request
-        char url[33] = "http://localhost:1337/check_hash";
-        try {
-            curlpp::Easy request;
-
-            request.setOpt(new curlpp::options::Url(url));
-            request.setOpt(new curlpp::options::Verbose(true));
-
-            std::list<std::string> header;
-            //  "arbitrary binary data"
-            header.push_back("Content-Type: application/octet-stream");
-
-            request.setOpt(new curlpp::options::HttpHeader(header));
-
-            // Send stringstream created from the vector<size_t> of hashes
-            // When reading in server, needs to load the stringstream into size_t
-            request.setOpt(new curlpp::options::PostFields(hashes_raw));
-            request.setOpt(new curlpp::options::PostFieldSize((long)bytes_size));
-
-            request.perform();
-        }
-        catch (curlpp::LogicError& e) {
-            std::cout << e.what() << std::endl;
-        }
-        catch (curlpp::RuntimeError& e) {
-            std::cout << e.what() << std::endl;
-        }
-
-        // vector should free itself
-    }
-
-    void HashesToServer_Test() {
-        std::vector<size_t> hashes = { 99997, 99998, 0, 99999 };
-
-        size_t bytes_size = sizeof(hashes[0]) * hashes.size();
-        std::string hashes_raw((char*)hashes.data(), bytes_size);
-
         std::stringstream response;
-        
+
         // send request
-        char url[33] = "http://localhost:1337/check_hash";
+        char url[32] = "http://localhost:1337/send_hash";
         try {
             curlpp::Easy request;
             request.setOpt(new curlpp::options::Url(url));
@@ -184,19 +180,11 @@ public:
 
             std::list<std::string> header;
             header.push_back("Content-Type: application/octet-stream");
-            // maybe also add type of request in the header
             request.setOpt(new curlpp::options::HttpHeader(header));
-
             request.setOpt(new curlpp::options::PostFields(hashes_raw));
             request.setOpt(new curlpp::options::PostFieldSize((long)bytes_size));
             request.setOpt(new curlpp::options::WriteStream(&response));
 
-            printf("bytes: ");
-            for (int i = 0; i < bytes_size; i++) {
-                printf("%hhu ", hashes_raw[i]);
-            }
-            printf("\n");
-
             request.perform();
         }
         catch (curlpp::LogicError& e) {
@@ -206,24 +194,48 @@ public:
             std::cout << "CURLPP ERROR: " << e.what() << std::endl;
         }
 
+        // Handle response
         if (response.str().size() == 0) {
             return;
         }
 
         std::string s = response.str();
         size_t hashes_size = (s.size() / sizeof(size_t));
-        size_t * response_hashes = new size_t[hashes_size];
-        response_hashes = (size_t*)s.data();
-
-        std::cout << "Response: ";
+        size_t* response_hashes = (size_t*)s.data();
+        std::vector<size_t> resp_h;
         for (int i = 0; i < hashes_size; i++) {
-            printf("%zu ", response_hashes[i]);
+            resp_h.push_back(response_hashes[i]);
         }
-        std::cout << std::endl;
 
-        delete [] response_hashes;
+        SendProcessDetailsToServer(resp_h);
     }
-    
+
+    void SendProcessDetailsToServer(std::vector<size_t>& send_hashes) {
+        std::string send_str = HashesToProcessDetailJson(send_hashes);
+
+        // send request
+        char url[37] = "http://localhost:1337/send_proc_data";
+        try {
+            curlpp::Easy request;
+            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Verbose(true));
+
+            std::list<std::string> header;
+            header.push_back("Content-Type: application/json");
+            request.setOpt(new curlpp::options::HttpHeader(header));
+            request.setOpt(new curlpp::options::PostFields(send_str));
+            request.setOpt(new curlpp::options::PostFieldSize((long)send_str.size()));
+
+            request.perform();
+        }
+        catch (curlpp::LogicError& e) {
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
+        }
+        catch (curlpp::RuntimeError& e) {
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
+        }
+    }
+
     void PrintProcessData(size_t hash) {
         ProcessData *proc = &LocalProcMap.at(hash).proc;
         printf("HASH: %20zu SIZE: %5zu NAME: %s\n", hash, proc->ImageSize, proc->ProcessName.c_str());
@@ -287,6 +299,126 @@ public:
             InsertProcessCounted(p);
         }
     }
+
+    std::string TEST_HashesToJson() {
+        /*std::string send_str(
+            "[ {\"id\": \"99997\", \"img_size\": \"1200\", \"proc_name\": \"CoolProcessName\" }, {\"id\": \"99998\", \"img_size\": \"200\", \"proc_name\": \"AnotherProcessName\" } ]"
+        );*/
+
+        std::vector<size_t> send_hashes = { 99997, 99998 };
+        std::string example_name = "CoolProcessName";
+        std::string send_str = "[ ";
+
+        for (int i = 0; i < send_hashes.size(); i++) {
+            send_str.append("{ ");
+            send_str.append("\"id\": ");
+            char buf[21];
+            sprintf_s(buf, 21, "\"%zu\", ", send_hashes[i]);
+            send_str.append(buf);
+
+            send_str.append("\"img_size\": ");
+            sprintf_s(buf, 21, "\"%zu\", ", (size_t)1200);
+            send_str.append(buf);
+
+            send_str.append("\"proc_name\": ");
+            send_str.append("\"");
+            send_str.append(example_name);
+            send_str.append("\"");
+            send_str.append("}");
+            if (!(i == send_hashes.size() - 1)) {
+                send_str.append(",");
+            }
+        }
+        send_str.append(" ]");
+        std::cout << send_str << std::endl;
+        return send_str;
+    }
+
+    void TEST_HashesToServer() {
+        std::vector<size_t> hashes = { 99997, 99998, 0, 99999 };
+
+        size_t bytes_size = sizeof(hashes[0]) * hashes.size();
+        std::string hashes_raw((char*)hashes.data(), bytes_size);
+
+        std::stringstream response;
+
+        // send request
+        char url[32] = "http://localhost:1337/send_hash";
+        try {
+            curlpp::Easy request;
+            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Verbose(true));
+
+            std::list<std::string> header;
+            header.push_back("Content-Type: application/octet-stream");
+            request.setOpt(new curlpp::options::HttpHeader(header));
+
+            request.setOpt(new curlpp::options::PostFields(hashes_raw));
+            request.setOpt(new curlpp::options::PostFieldSize((long)bytes_size));
+            request.setOpt(new curlpp::options::WriteStream(&response));
+
+            printf("bytes: ");
+            for (int i = 0; i < bytes_size; i++) {
+                printf("%hhu ", hashes_raw[i]);
+            }
+            printf("\n");
+
+            request.perform();
+        }
+        catch (curlpp::LogicError& e) {
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
+        }
+        catch (curlpp::RuntimeError& e) {
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
+        }
+
+        if (response.str().size() == 0) {
+            return;
+        }
+
+        std::string s = response.str();
+        size_t hashes_size = (s.size() / sizeof(size_t));
+        size_t* response_hashes = (size_t*)s.data();
+
+        std::vector<size_t> res_h;
+        std::cout << "Response: ";
+        for (int i = 0; i < hashes_size; i++) {
+            res_h.push_back(response_hashes[i]);
+            printf("%zu ", response_hashes[i]);
+        }
+
+        TEST_ProcDetailsToServer(res_h);
+
+        std::cout << std::endl;
+    }
+
+    void TEST_ProcDetailsToServer(std::vector<size_t>& send_hashes) {
+        std::string send_str = TEST_HashesToJson();
+
+        // send request
+        char url[37] = "http://localhost:1337/send_proc_data";
+        try {
+            curlpp::Easy request;
+            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Verbose(true));
+
+            std::list<std::string> header;
+            header.push_back("Content-Type: application/json");
+            request.setOpt(new curlpp::options::HttpHeader(header));
+
+            request.setOpt(new curlpp::options::PostFields(send_str));
+            request.setOpt(new curlpp::options::PostFieldSize((long)send_str.size()));
+
+            request.perform();
+        }
+        catch (curlpp::LogicError& e) {
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
+        }
+        catch (curlpp::RuntimeError& e) {
+            std::cout << "CURLPP ERROR: " << e.what() << std::endl;
+        }
+    }
+
 };
 
 void test_database()

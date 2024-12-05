@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -12,10 +13,15 @@ import (
 )
 
 type ProcessData struct {
-	image_size uint64 
-	proc_name  string //Maybe use an array so its not malloced somewhere else?
-	
-	proc_count uint64
+	ImageSize uint64 
+	ProcName  string //Maybe use an array so its not malloced somewhere else?
+	ProcCount uint64
+}
+
+type ProcessDetailsRequest struct {
+	ID       string `json:"id"`
+	ImgSize  string `json:"img_size"`
+	ProcName string `json:"proc_name"`
 }
 
 var process_map map[uint64]ProcessData
@@ -23,7 +29,34 @@ var process_map map[uint64]ProcessData
 func PrintMap() {
 	fmt.Println("--------------------------- TABLE -------------------------")
 	for k, v := range process_map {
-		fmt.Printf("|%10d|%6d|%32s|%6d| \n" ,k, v.image_size, v.proc_name, v.proc_count)
+		fmt.Printf("|%10d|%6d|%32s|%6d| \n" ,k, v.ImageSize, v.ProcName, v.ProcCount)
+	}
+}
+
+func HashesRequestProcessDetails(w http.ResponseWriter, req *http.Request) {
+	// get all details of processes
+	str, err := io.ReadAll(req.Body)
+	if err != nil {
+		log.Fatal("request", err)
+	}
+
+	var values []ProcessDetailsRequest
+	err = json.Unmarshal([]byte(str), &values)
+	if err != nil {
+		log.Fatal("json unmarshal", err)
+	}
+
+	for _, val := range values {
+		id, _ := strconv.Atoi(val.ID)
+		uid := uint64(id)
+		// TODO: add check if hash is actually unknown
+		curproc, ok := process_map[uid]
+		if ok {
+			imgs, _ := strconv.Atoi(val.ImgSize)
+			process_map[uid] = ProcessData{uint64(imgs), val.ProcName, curproc.ProcCount }
+		} else {
+			log.Println("Process details sent for nonexistent hash")
+		}
 	}
 }
 
@@ -52,7 +85,7 @@ func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
 	for _, h := range hashes {
 		curproc, ok := process_map[h]
 		if ok {
-			process_map[h] = ProcessData{0, "no_name", curproc.proc_count + 1}
+			process_map[h] = ProcessData{curproc.ImageSize, curproc.ProcName, curproc.ProcCount + 1}
 		} else {
 			unknown_hashes = append(unknown_hashes, h)
 			process_map[h] = ProcessData{0, "no_name", 1}
@@ -74,7 +107,9 @@ func main() {
 	process_map = make(map[uint64]ProcessData)
 	process_map[100] = ProcessData{999, "first_process", 1}
 
-	http.HandleFunc("/check_hash", HashesRequestRead)
+	http.HandleFunc("/send_hash", HashesRequestRead)
+	http.HandleFunc("/send_proc_data", HashesRequestProcessDetails)
+
 	log.Println("Server listening on port 1337")
 	log.Fatal(http.ListenAndServe(":1337", nil))
 }

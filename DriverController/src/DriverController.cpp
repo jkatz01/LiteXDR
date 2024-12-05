@@ -7,12 +7,11 @@ int main()
 {
     ProcessDatabase* database = new ProcessDatabase;
     while (TRUE) {
-        database->HashesToServer_Test();
+        database->TEST_HashesToServer();
         std::cout << "--------------------" << std::endl;
         Sleep(5000);
     }
-    /*
-    KernelInterface Driver = KernelInterface("\\\\.\\xdr");
+    /*KernelInterface Driver = KernelInterface("\\\\.\\xdr");
     ProcessDatabase* database = new ProcessDatabase;
 
     database->LoadDatabaseFromFile();
