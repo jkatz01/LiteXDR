@@ -13,7 +13,7 @@ import (
 )
 
 type ProcessData struct {
-	ImageSize uint64 
+	ImageSize uint64
 	ProcName  string //Maybe use an array so its not malloced somewhere else?
 	ProcCount uint64
 }
@@ -29,7 +29,7 @@ var process_map map[uint64]ProcessData
 func PrintMap() {
 	fmt.Println("--------------------------- TABLE -------------------------")
 	for k, v := range process_map {
-		fmt.Printf("|%10d|%6d|%32s|%6d| \n" ,k, v.ImageSize, v.ProcName, v.ProcCount)
+		fmt.Printf("|%20d|%10d|%-80s|%10d| \n", k, v.ImageSize, v.ProcName, v.ProcCount)
 	}
 }
 
@@ -47,16 +47,14 @@ func HashesRequestProcessDetails(w http.ResponseWriter, req *http.Request) {
 	}
 
 	for _, val := range values {
-		id, _ := strconv.Atoi(val.ID)
-		uid := uint64(id)
+		uid, _ := strconv.ParseUint(val.ID, 10, 64)
 		// TODO: add check if hash is actually unknown
 		curproc, ok := process_map[uid]
 		if ok {
 			imgs, _ := strconv.Atoi(val.ImgSize)
-			process_map[uid] = ProcessData{uint64(imgs), val.ProcName, curproc.ProcCount }
+			process_map[uid] = ProcessData{uint64(imgs), val.ProcName, curproc.ProcCount}
 		} else {
-			log.Println("Process details sent for nonexistent hash")
-			log.Println(val.ID)
+			log.Printf("Process details sent for nonexistent hash: %d", uid)
 		}
 	}
 }
@@ -81,8 +79,8 @@ func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
 	var unknown_hashes = make([]uint64, 0)
 	binary.Read(hash_buf, binary.LittleEndian, &hashes)
 	fmt.Println(hashes)
-	
-	// Add hashes to map 
+
+	// Add hashes to map
 	for _, h := range hashes {
 		curproc, ok := process_map[h]
 		if ok {
@@ -94,11 +92,11 @@ func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
 		// if some data is unknown, http response to ask for details
 	}
 
-	//Write response for unknown hashes 
+	//Write response for unknown hashes
 	w_buf := new(bytes.Buffer)
 	binary.Write(w_buf, binary.LittleEndian, &unknown_hashes)
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Length", strconv.Itoa( w_buf.Len() ))
+	w.Header().Set("Content-Length", strconv.Itoa(w_buf.Len()))
 	w.Write(w_buf.Bytes())
 
 	PrintMap()

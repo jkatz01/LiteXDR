@@ -28,6 +28,8 @@ private:
     std::unordered_map<size_t, ProcessDataCounted> LocalProcMap;
 public:
     std::string TestString = "test string";
+    char ServerUrlSendHashes[35] = "http://192.168.1.30:1337/send_hash";
+    char ServerUrlProcData[40] = "http://192.168.1.30:1337/send_proc_data";
     
     size_t HashProcess(ProcessData &proc) {
         std::string base = ""; 
@@ -147,7 +149,6 @@ public:
 
             send_str.append("\"proc_name\": ");
             send_str.append("\"");
-            //send_str.append(LocalProcMap[send_hashes[i]].proc.ProcessName);
             std::string name;
             for (char c : LocalProcMap[send_hashes[i]].proc.ProcessName) {
                 name += c;
@@ -178,10 +179,9 @@ public:
         std::stringstream response;
 
         // send request
-        char url[32] = "http://localhost:1337/send_hash";
         try {
             curlpp::Easy request;
-            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Url(ServerUrlSendHashes));
             request.setOpt(new curlpp::options::Verbose(true));
 
             std::list<std::string> header;
@@ -219,10 +219,9 @@ public:
         std::string send_str = HashesToProcessDetailJson(send_hashes);
 
         // send request
-        char url[37] = "http://localhost:1337/send_proc_data";
         try {
             curlpp::Easy request;
-            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Url(ServerUrlProcData));
             request.setOpt(new curlpp::options::Verbose(true));
 
             std::list<std::string> header;
@@ -278,7 +277,7 @@ public:
             savefile.write((char*)&i.second.Count, sizeof(i.second.Count));
         }
     }
-	void LoadDatabaseFromFile() {
+    void LoadDatabaseFromFile() {
         std::ifstream savefile("database_save.bin", std::ios::binary);
         if (savefile.fail()) {
             std::cout << "Save file database_save.bin does not exist or failed" << std::endl;
@@ -347,11 +346,9 @@ public:
 
         std::stringstream response;
 
-        // send request
-        char url[32] = "http://localhost:1337/send_hash";
         try {
             curlpp::Easy request;
-            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Url(ServerUrlSendHashes));
             request.setOpt(new curlpp::options::Verbose(true));
 
             std::list<std::string> header;
@@ -401,10 +398,9 @@ public:
         std::string send_str = TEST_HashesToJson();
 
         // send request
-        char url[37] = "http://localhost:1337/send_proc_data";
         try {
             curlpp::Easy request;
-            request.setOpt(new curlpp::options::Url(url));
+            request.setOpt(new curlpp::options::Url(ServerUrlProcData));
             request.setOpt(new curlpp::options::Verbose(true));
 
             std::list<std::string> header;

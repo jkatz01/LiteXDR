@@ -5,6 +5,11 @@
 
 int main()
 {
+    /*ProcessDatabase* database = new ProcessDatabase;
+    while (TRUE) {
+        database->TEST_HashesToServer();
+        Sleep(5000);
+    }*/
     KernelInterface Driver = KernelInterface("\\\\.\\xdr");
     ProcessDatabase* database = new ProcessDatabase;
 
@@ -34,6 +39,5 @@ int main()
     }
 
     database->SaveDatabaseToFile();
-    
 
 }
