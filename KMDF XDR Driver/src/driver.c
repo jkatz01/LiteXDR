@@ -36,6 +36,8 @@ NTSTATUS DriverEntry( PDRIVER_OBJECT  DriverObject, PUNICODE_STRING RegistryPath
 
     ProcBufferOffset = 0;
     ProcBufferLength = PROC_BUFFER_MAX_SIZE;
+	// TODO: Change POOL_FLAG_NON_PAGED to POOP_FLAG_PAGED 
+	// because the driver bluescreens after some time with "Page fault in nonpaged area"
     ProcBufferPtr = (void*) ExAllocatePool2(POOL_FLAG_NON_PAGED, ProcBufferLength, MyTag);
     if (ProcBufferPtr == NULL) {
         DebugMessage("Failed to allocate memory for ProcBuffer\n");
