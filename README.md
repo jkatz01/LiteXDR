@@ -33,7 +33,10 @@ Now the driver is installed, you can find it in the Windows Device Manager.
 **Step 5.** Run the client, `DriverController.exe`
 
 ### Server
-In progress...
+```
+cd xdrserver
+go run main.go
+```
 
 ## How it works
 ### Driver:
@@ -51,10 +54,9 @@ The server will respond only if a process is "suspicious" and requests full info
 ### Server:
 The server keeps a database of known processes and their information. Client programs send hashes of ProcessData to minimize the amount of data sent to the server. Every time a hash gets sent it increases the count of the process in the hashmap, so common processes that happen frequently on every computer have a high count in the map.
 
-If the hash of a process is discovered for the first time, or its count is low in the map, the server requests the user program to send full information about the process. 
+If the hash of a process is discovered for the first time, or its count is low in the map, the server requests the user program to send full information about the process in the http response.
 
 ## TODO List
-- Make online server
 - Make easy build scripts for client and server programs
 - Make full client program installer
 - Prevent unknown processes from running, with an allow or deny list in the kernel driver
