@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div>
+	<h1 style="margin-bottom:1em">Process Reports</h1>
+</div>
+
+<div>
+	<p> Refresh: <button type="button" onclick="getHostList();">____</button> </p>
+	<br />
+	<p id="date">Example text: </p>
+	<script src="getProcs.js"></script>
+	
+	<table id="procTable">
+		<thead>
+			<th style="width:10%">Hash</th>
+			<th style="width:10%">Image Size</th>
+			<th style="width:50%">Image Name</th>
+			<th style="width:10%">Times reported</th>
+		</thead>
+		<tbody>
+			<tr>
+				<td>7815668379869088390</td>
+				<td>692224</td>
+				<td>\Device\HarddiskVolume1\Windows\System32\clbcatq.dll</td>
+				<td>2</td>
+			</tr>
+			<tr>
+				<td>16739431523842235495</td>
+				<td>258048</td>
+				<td>\Device\HarddiskVolume1\Windows\System32\netprofm.dll</td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td>4250999657698548785</td>
+				<td>655368</td>
+				<td>\Device\HarddiskVolume1\Windows\System32\npmproxy.dll</td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td>8024320291427669968</td>
+				<td>147456</td>
+				<td>\Device\HarddiskVolume1\Windows\System32\DevPropMgr.dll</td>
+				<td>1</td>
+			</tr>
+		</tbody>
+	</table>
+	
+</div>
+
+</body>
+</html> 

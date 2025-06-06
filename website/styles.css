@@ -1,0 +1,71 @@
+body {
+	background-color: #fff;
+	font-family: "Arial";
+}
+
+h1 {
+	color: black;
+	font-size: 3em;
+}
+
+a {
+	color: black;
+}
+
+p {
+	color: black;
+
+	margin-top: 	5px;
+	margin-bottom: 	5px;
+
+	font-size: 1em;
+}
+
+button {
+	font-size: 1em;
+}
+
+#procTable {
+  border-collapse: collapse;
+  background-color: #f2f2f2;
+  table-layout: fixed;
+  width: 100%;
+}
+
+#procTable td, #procTable th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#procTable td:hover {
+	z-index: 1;
+	width: auto;
+}
+
+#procTable tr:nth-child(even){background-color: #b2b2b2;}
+
+#procTable tr:hover{
+	background-color: #a0dfa0;
+}
+
+#procTable td:hover {
+	z-index: 1;
+	width: 100%;
+	white-space: normal;
+}
+
+#procTable th {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: left;
+  background-color: #3978f7;
+  color: white;
+}
+
+div {
+	width: 60%;
+	margin: auto;
+}

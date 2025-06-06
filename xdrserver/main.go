@@ -14,6 +14,7 @@ import (
 	"database/sql"
 	"os"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rs/cors"
 )
 
 var procDatabase *sql.DB
@@ -32,11 +33,48 @@ type ProcessDetailsRequest struct {
 
 var process_map map[uint64]ProcessData
 
+func main() {
+	process_map = make(map[uint64]ProcessData)
+	process_map[100] = ProcessData{999, "first_process", 1}
+
+
+	_, err_file := os.Stat("process-database.db")
+	if (os.IsNotExist(err_file)) {
+		log.Println("Creating process-database.db")
+		file, err := os.Create("process-database.db")
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		file.Close()
+		log.Println("process-database.db created")
+	}
+
+	procDatabase, _ = sql.Open("sqlite3", "./process-database.db")
+	defer procDatabase.Close()
+	createProcessTable(procDatabase)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/send_hash", HashesRequestRead)
+	mux.HandleFunc("/send_proc_data", HashesRequestProcessDetails)
+	mux.HandleFunc("/get_proc_list", sendProcessList)
+	handler := cors.Default().Handler(mux)
+
+	log.Println("Server listening on port 1337")
+	log.Fatal(http.ListenAndServe(":1337", handler))
+}
+
 func PrintMap() {
 	fmt.Println("--------------------------- TABLE -------------------------")
 	for k, v := range process_map {
 		fmt.Printf("|%20d|%10d|%-100s|%10d| \n", k, v.ImageSize, v.ProcName, v.ProcCount)
 	}
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
 func createProcessTable(db *sql.DB) {
@@ -86,6 +124,26 @@ func updateProcessCount(db *sql.DB, procHash uint64) {
 	_, err = statement.Exec(strconv.FormatUint(procHash, 10))
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+}
+
+func sendProcessList(w http.ResponseWriter, req *http.Request) {
+	enableCors(&w)
+	//log.Println("Call for get_proc_list")
+	if req.Method == http.MethodOptions {
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	row, err := procDatabase.Query("SELECT * FROM processes")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer row.Close()
+	for row.Next() {
+		var imgSize, procCount int 
+		var procHash, procName string 
+		row.Scan(&procHash, &imgSize, &procName, &procCount)
+		fmt.Fprintf(w, "%s, %d, %s, %d\n", procHash, imgSize, procName, procCount)
 	}
 }
 
@@ -165,29 +223,3 @@ func HashesRequestRead(w http.ResponseWriter, req *http.Request) {
 	PrintMap()
 }
 
-func main() {
-	process_map = make(map[uint64]ProcessData)
-	process_map[100] = ProcessData{999, "first_process", 1}
-
-
-	_, err_file := os.Stat("process-database.db")
-	if (os.IsNotExist(err_file)) {
-		log.Println("Creating process-database.db")
-		file, err := os.Create("process-database.db")
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		file.Close()
-		log.Println("process-database.db created")
-	}
-
-	procDatabase, _ = sql.Open("sqlite3", "./process-database.db")
-	defer procDatabase.Close()
-	createProcessTable(procDatabase)
-
-	http.HandleFunc("/send_hash", HashesRequestRead)
-	http.HandleFunc("/send_proc_data", HashesRequestProcessDetails)
-
-	log.Println("Server listening on port 1337")
-	log.Fatal(http.ListenAndServe(":1337", nil))
-}
